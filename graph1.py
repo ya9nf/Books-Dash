@@ -80,7 +80,7 @@ def update_graph(author_values, book_values, year_range):
 
 # run the app
 if __name__ == '__main__':
-    graph1.run_server(debug=True, port = 8051)
+    graph1.run_server(debug=True)
 
 # I am struggling deciding if this filter / UI elements will control the entirre dashboard or just the graph, 
 #I am also sturggling to find unique stylesheets, 
