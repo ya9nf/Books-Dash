@@ -7,9 +7,8 @@
 #import dependencies
 import pandas as pd
 import plotly.express as px
-from dash import Dash, dash_table, dcc, html, Input, Output, State # update to import
-
-
+from dash import Dash, dash_table, dcc, html, Input, Output, State 
+import dash_bootstrap_components as dbc
 
 # %%
 data = pd.read_csv('data.csv')
@@ -40,17 +39,18 @@ sales_by_publisher = data.groupby('Publisher')['Gross Sales'].sum().reset_index(
 
 
 # %%
-stylesheets = ['/Users/yasminazizi/Desktop/DS 4003/bootstrap.css'] # Load the css stylesheet
+#stylesheets = ['/Users/yasminazizi/Desktop/DS 4003/bootstrap.css'] # Load the css stylesheet
 
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, '/Users/yasminazizi/Desktop/DS 4003/bootstrap.css'])
 
-app = Dash(__name__, external_stylesheets=stylesheets) 
+#app = Dash(__name__, external_stylesheets=stylesheets)
 server = app.server
 
 # layout
 app.layout = html.Div([
    html.Div([
         html.H1('Books Dashboard', style={'display': 'inline-block',  'padding': '10px'}),
-        html.Img(src="/Users/yasminazizi/Desktop/DS 4003/books.png", style={'height': '30px', 'margin-right': '10px'}),
+        html.Img(src="https://img.freepik.com/premium-vector/book-logo-template-design-education-icon-sign-symbol_752732-614.jpg", style={'height': '40px', 'margin-right': '20px'}),
     ]),
 
     html.Div([
@@ -62,16 +62,20 @@ app.layout = html.Div([
         html.H2('Data Dictionary', style={'textAlign': 'center', 'color': 'black'}),
         html.Div([
         dcc.Dropdown(
-            id='variable-dropdown',
+            id='variable-dropdown', style={'textAlign': 'center', 'color': 'black'},
             options=[{'label': var, 'value': var} for var in data_dictionary.keys()],
             value=list(data_dictionary.keys())[0]  # Set default value
         ),
         ]),
-        html.Div(id='variable-definition-output')
+        html.Div(id='variable-definition-output', style={'textAlign': 'center', 'color': 'black'})
 
-    ], style = {'backgroundColor': '#D2B48C'} ),
+    ], style = {'backgroundColor': '#fff2cc'} ),
 
-    html.Div(style={'display': 'inline-block', 'width': '30%', 'verticalAlign': 'top', 'padding': '10px'}, children=[
+
+
+    html.Div(style={'display': 'inline-block', 'width': '33.33%', 'verticalAlign': 'top', 'padding': '10px', 'backgroundColor': '#cce3f8'}, children=[
+
+
         html.H2("Top Ten Books by Units Sold", style={'textAlign': 'center'}),
         dash_table.DataTable(
             id='datatable',
@@ -85,7 +89,9 @@ app.layout = html.Div([
         )
     ]),
 
-    html.Div(style={'display': 'inline-block', 'width': '30%', 'verticalAlign': 'top', 'padding': '10px'}, children=[
+
+
+    html.Div(style={'display': 'inline-block', 'width': '33.33%', 'verticalAlign': 'top', 'padding': '10px', 'backgroundColor': '#cce3f8'}, children=[
         html.H2("Top Ten Books by Gross Sales", style={'textAlign': 'center'}),
         dash_table.DataTable(
             id='datatable1',
@@ -99,7 +105,9 @@ app.layout = html.Div([
         )
     ]),
 
-    html.Div(style={'display': 'inline-block', 'width': '30%', 'verticalAlign': 'top', 'padding': '10px'}, children=[
+    html.Div(style={'display': 'inline-block', 'width': '33.33%', 'verticalAlign': 'top', 'padding': '10px', 'backgroundColor': '#cce3f8'}, children=[
+
+
         html.H2("Top Ten Books by Avg. Rating", style={'textAlign': 'center'}),
         dash_table.DataTable(
             id='datatable2',
@@ -113,7 +121,9 @@ app.layout = html.Div([
         )
     ]),
 
-   html.Div([
+
+
+    html.Div(style={'display': 'inline-block', 'width': '50%', 'verticalAlign': 'top', 'padding': '10px', 'backgroundColor': '#fff2cc'}, children=[
         html.H2('Gross Sales by Publisher', style={'textAlign': 'center', 'color': 'black'}),
         html.P('This bar chart displays the total amount of sales each publisher featured in the data set has accumulated.', style={'textAlign': 'center', 'color': 'black'}),
         dcc.Checklist(
@@ -125,9 +135,11 @@ app.layout = html.Div([
         dcc.Graph(id='sales-bar-chart'),
     ]),
 
-    html.Div([
+
+
+    html.Div(style={'display': 'inline-block', 'width': '50%', 'verticalAlign': 'top', 'padding': '10px', 'backgroundColor': '#fff2cc'}, children=[
         html.H2("Book Sales v. Book Rating", style={'textAlign': 'center', 'color': 'black'}), # Create header   
-        html.P("This data analyzes Book Sales based on a book's ratings.", style={'textAlign': 'center', 'color': 'black'}), # align text and make font black
+        html.P("This data analyzes book sales compared to its ratings.", style={'textAlign': 'center', 'color': 'black'}), # align text and make font black
     
         # dropdown for the author name
         dcc.Dropdown( 
@@ -137,20 +149,25 @@ app.layout = html.Div([
             value=[data['Publisher'].unique()[0]],
             className='six columns'
         ),  
+
+        #range slider for year
          dcc.RangeSlider(
              id='year-slider',
              min=data['Publishing Year'].min(),
              max= data['Publishing Year'].max(),
              value=[data['Publishing Year'].min(), data['Publishing Year'].max()],
-             marks={str(year): str(year) if year % 50 == 0 else '' for year in data['Publishing Year'].unique()},
+             marks={str(year): str(year) if year % 100 == 0 else '' for year in data['Publishing Year'].unique()},
              step=100,
              tooltip={'always_visible': True},
              className='six columns'
-         )
-     ], className='row', style={'padding': 10}),
+         ),
     
-     dcc.Graph(id='graph', figure=px.scatter(data, x='Book Average Rating', y='Gross Sales', title='Book Rating v. Book Sales')), # Plotly Express graph
- ], style={'padding': 20, }) 
+        dcc.Graph(id='graph', figure=px.scatter(data, x='Book Average Rating', y='Gross Sales', title='Book Rating v. Book Sales')),
+
+     ], className='row'),
+    
+     #dcc.Graph(id='graph', figure=px.scatter(data, x='Book Average Rating', y='Gross Sales', title='Book Rating v. Book Sales')),
+ ], style={'padding': 20}) 
  
 
 # Define callback to update variable definition output
@@ -162,7 +179,6 @@ def update_output(selected_variable):
     if selected_variable is not None:
         definition = data_dictionary.get(selected_variable, 'Definition not found')
         return html.Div([
-            #html.H3(selected_variable),
             html.P(definition)
         ])
     else:
@@ -181,8 +197,7 @@ def update_graph(pub_values, year_range):
     ]
     fig = px.scatter(filtered_data, x='Book Average Rating', y='Gross Sales', title='Book Rating v. Book Sales',
                      hover_data={'Title': True, 'Gross Sales': True, 'Author': True},  # Add hover information
-                     #trendline='ols',  # Add trendline using ordinary least squares regression
-                     color='Publisher',  # Use color to represent genre
+                     color='Publisher',  
                      labels={'Book Average Rating': 'Average Rating', 'Gross Sales': 'Sales'},  # Customize axis labels
                      )
     fig.update_layout(
@@ -220,6 +235,9 @@ def update_bar_chart(selected_publishers):
 # Run the app
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+
+# %%
 
 
 
