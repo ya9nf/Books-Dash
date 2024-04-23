@@ -192,7 +192,7 @@ def update_output(selected_variable):
     else:
         return html.P("Select a variable from the dropdown", style={'color': '#e74c3c'})
 
-# callback for the bar graph check boxes
+# callback for the scatter plot
 @app.callback(
     Output('graph', 'figure'),
     [Input('Publisher', 'value'),
@@ -206,6 +206,7 @@ def update_graph(pub_values, year_range):
     ]
     fig = px.scatter(
         filtered_data, 
+        hover_data={'Title': True, 'Gross Sales': True, 'Author': True},  # Add hover information
         x='Book Average Rating', 
         y='Gross Sales', 
         title='Book Rating vs. Book Sales',
@@ -225,7 +226,7 @@ def update_graph(pub_values, year_range):
     )
     return fig
 
-# callback for scatter plot dropdown and slider
+# callback for bar chart
 @app.callback(
     Output('sales-bar-chart', 'figure'),
     [Input('publisher-checkboxes', 'value')]
