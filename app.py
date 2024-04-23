@@ -14,9 +14,11 @@ import dash_html_components as html
 
 
 # %%
+# load in the data
 data = pd.read_csv('data.csv')
 
 # %%
+# print the data
 print(data.info())
 
 # %%
@@ -38,41 +40,44 @@ data_dictionary = {
     'Units Sold': 'Count of books sold per title'}
 
 # %%
+# sum all the sales per publisher so it can be displayed on bar chart
 sales_by_publisher = data.groupby('Publisher')['Gross Sales'].sum().reset_index()
 
 
 # %%
+# load style sheet frorm bootstrap in the app
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, '/Users/yasminazizi/Desktop/DS 4003/bootstrap.css'])
 server = app.server
 
-# Initialize the Dash app
+#make the app
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 server = app.server
 
-# Define the layout of the application
+
 app.layout = html.Div([
-    # Header section
-   
+
+##### Title #####
     html.Div([
          html.H1('Books Dashboard', style={'display': 'inline-block',  'padding': '10px'}),
          html.Img(src="https://img.freepik.com/premium-vector/book-logo-template-design-education-icon-sign-symbol_752732-614.jpg", style={'height': '40px', 'margin-right': '20px'}),
     ]),
 
+##### Github Button #####
     html.Div([
         html.Div(style={'position': 'absolute', 'top': '10px', 'right': '10px'}, children=[
         html.A(html.Button('GitHub', style={'margin-right': '10px'}), href='http://github.com/ya9nf/Books-Dash', target='_blank'),
          ]),
      ]),
-
-    # Description section
+##### Description of Dashboard ####
     html.Div([
         html.P('This dashboard explores trends in top selling books. Picking a book can be lengthy and difficult due to the large selection and limited tools to make desicions. Depending on what perspective is taken this dataset can be used to lead reading choices or inventory selection amongst other purposes. A bookestore owner can use this data to enhance sales and manage inventory. A novice reader can use this information to guide where to start.'),
     ], style={'padding': '20px', 'backgroundColor': '#bdc3c7', 'borderRadius': '5px', 'color': '#333'}),
 
-    # Data dictionary section
+#### Data Dictionary Description ####
     html.Div([
         html.H2('Data Dictionary', style={'textAlign': 'center', 'color': '#2c3e50'}),
+        html.P('The dropdown includes all of the variables in the dataset and provides the definition when selected.'),
         dcc.Dropdown(
             id='variable-dropdown',
             options=[{'label': var, 'value': var} for var in data_dictionary.keys()],
@@ -82,7 +87,7 @@ app.layout = html.Div([
         html.Div(id='variable-definition-output', style={'textAlign': 'center', 'color': '#7f8c8d'})
     ], style={'backgroundColor': '#ecf0f1', 'padding': '20px', 'margin': '20px 0', 'borderRadius': '5px'}),
 
-    # Sections for data tables
+#### Table of the Top Ten books sorted by Units Sold ####
     html.Div([
         # Top ten books by Units Sold
         html.Div([
@@ -100,7 +105,7 @@ app.layout = html.Div([
             )
         ], style={'width': '30%', 'padding': '10px', 'backgroundColor': '#95a5a6', 'margin': '10px', 'borderRadius': '5px'}),
 
-        # Top ten books by Gross Sales
+#### Table of the Top Ten books sorted by Gross Sales ####
         html.Div([
             html.H2("Top Ten Books by Gross Sales", style={'textAlign': 'center'}),
             dash_table.DataTable(
@@ -116,7 +121,7 @@ app.layout = html.Div([
             )
         ], style={'width': '30%', 'padding': '10px', 'backgroundColor': '#95a5a6', 'margin': '10px', 'borderRadius': '5px'}),
 
-        # Top ten books by Avg. Rating
+#### Table of the Top Ten books sorted by Avg. Rating ####
         html.Div([
             html.H2("Top Ten Books by Avg. Rating", style={'textAlign': 'center'}),
             dash_table.DataTable(
@@ -134,22 +139,21 @@ app.layout = html.Div([
 
     ], style={'display': 'flex', 'justifyContent': 'space-around'}),
 
-    # Additional charts section
+    #### First chart: Showing what publishers perform the best ####
     html.Div([
-        # Gross Sales by Publisher
         html.Div([
             html.H2('Gross Sales by Publisher', style={'textAlign': 'center'}),
             html.P('This bar chart displays the total amount of sales each publisher featured in the data set has accumulated.', style={'textAlign': 'center'}),
             dcc.Checklist(
                 id='publisher-checkboxes',
                 options=[{'label': publisher, 'value': publisher} for publisher in sales_by_publisher['Publisher'].unique()],
-                value=[sales_by_publisher['Publisher'].unique()[0]],  # Set default value to the first publisher
-                labelStyle={'display': 'inline', 'margin': '5px'}  # Display checkboxes inline
+                value=[sales_by_publisher['Publisher'].unique()[0]],  # default value
+                labelStyle={'display': 'inline', 'margin': '5px'}  # checkboxes horizontal
             ),
             dcc.Graph(id='sales-bar-chart'),
         ], style={'width': '50%', 'padding': '10px', 'backgroundColor': '#f8f9fa', 'borderRadius': '5px'}),
 
-        # Book Sales v. Book Rating
+        ##### Second Chart:Book Sales v. Book Rating ####
         html.Div([
             html.H2("Book Sales v. Book Rating", style={'textAlign': 'center'}),
             html.P("This data analyzes book sales compared to its ratings.", style={'textAlign': 'center'}),
@@ -174,7 +178,7 @@ app.layout = html.Div([
 ], style={'padding': '20px'})
 
 
-# Define callback to update the text output in the Data Dictionary section
+# Call back for data dictionary dropdown
 @app.callback(
     Output('variable-definition-output', 'children'),
     [Input('variable-dropdown', 'value')]
@@ -188,7 +192,7 @@ def update_output(selected_variable):
     else:
         return html.P("Select a variable from the dropdown", style={'color': '#e74c3c'})
 
-# Define callback to update the graph based on publisher selection and year range
+# callback for the bar graph check boxes
 @app.callback(
     Output('graph', 'figure'),
     [Input('Publisher', 'value'),
@@ -221,7 +225,7 @@ def update_graph(pub_values, year_range):
     )
     return fig
 
-# Define callback to update the bar chart for sales by publisher
+# callback for scatter plot dropdown and slider
 @app.callback(
     Output('sales-bar-chart', 'figure'),
     [Input('publisher-checkboxes', 'value')]
@@ -250,7 +254,6 @@ def update_bar_chart(selected_publishers):
 
 
 
-# Run the app
 if __name__ == '__main__':
     app.run_server(debug=True)
 
